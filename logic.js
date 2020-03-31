@@ -4,10 +4,7 @@
 
 
 
-
-
-
-var apiKey = "pk.eyJ1IjoiYXJsd2VzdHhmb3JjZSIsImEiOiJjazF6aWdmankwdjkxM21wNHFvcnFhaGlyIn0.0xcR1zneD6rLbGKUrKuYwA";
+var apiKey = DefaultApiKey;
 
 var graymap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
   attribution: "Map data &copy; <a href='https://www.openstreetmap.org/'>OpenStreetMap</a> contributors, <a href='https://creativecommons.org/licenses/by-sa/2.0/'>CC-BY-SA</a>, Imagery © <a href='https://www.mapbox.com/'>Mapbox</a>",
@@ -30,7 +27,6 @@ var outdoors = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png
   accessToken: apiKey
 });
 
-// We then create the map object with options. Adding the tile layers we just
 // created to an array of layers.
 var map = L.map("mapid", {
   center: [
@@ -40,13 +36,13 @@ var map = L.map("mapid", {
   layers: [graymap, satellitemap, outdoors]
 });
 
-// Adding our 'graymap' tile layer to the map.
+// Adding 'graymap' tile layer to the map.
 graymap.addTo(map);
 
-// We create the layers for our two different sets of data, earthquakes and
-// tectonicplates.
+//creating two layers
 var tectonicplates = new L.LayerGroup();
 var earthquakes = new L.LayerGroup();
+
 
 // Defining an object that contains all of our different map choices. Only one
 // of these maps will be visible at a time!
@@ -56,8 +52,8 @@ var baseMaps = {
   Outdoors: outdoors
 };
 
-// We define an object that contains all of our overlays. Any combination of
-// these overlays may be visible at the same time!
+
+//overlay maps
 var overlays = {
   "Tectonic Plates": tectonicplates,
   Earthquakes: earthquakes
@@ -65,12 +61,10 @@ var overlays = {
 
 // Then we add a control to the map that will allow the user to change which
 // layers are visible.
-L
-  .control
-  .layers(baseMaps, overlays)
-  .addTo(map);
+L.control.layers(baseMaps, overlays).addTo(map);
 
-// Our AJAX call retrieves our earthquake geoJSON data.
+
+// Ajax call using d3
 d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson", function(data) {
 
   // This function returns the style data for each of the earthquakes we plot on
@@ -185,30 +179,65 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
 
 
 
-// $(function () {
-//     $('#myToolbar').w2toolbar({
-//         name : 'myToolbar',
-//         items: [
-//             { type: 'check',  id: 'item1', caption: 'Check', img: 'icon-add', checked: true },
-//             { type: 'break' },
-//             { type: 'menu',   id: 'item2', caption: 'Drop Down', img: 'icon-folder', 
-//                 items: [
-//                     { text: 'Item 1', img: 'icon-page' }, 
-//                     { text: 'Item 2', img: 'icon-page' }, 
-//                     { text: 'Item 3', img: 'icon-page' }
-//                 ]
-//             },
-//             { type: 'break' },
-//             { type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', img: 'icon-page' },
-//             { type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', img: 'icon-page' },
-//             { type: 'spacer' },
-//             { type: 'button',  id: 'item5',  caption: 'Item 5', img: 'icon-save' }
-//         ]
-//     });
-// });
+$(function () {
+    $('#myToolbar').w2toolbar({
+        name : 'myToolbar',
+        items: [
+            { type: 'check',  id: 'item1', caption: 'Check', img: 'icon-add', checked: true },
+            { type: 'break' },
+            { type: 'menu',   id: 'select-mag', caption: 'Select Magnitude' , img: 'icon-folder', 
+                items: [
+                    { text: 'Magnitude-All', img: 'icon-page' },
+                    { text: 'Magnitude-0-1', img: 'icon-page' },
+                    { text: 'Magnitude-1-2', img: 'icon-page' },
+                    { text: 'Magnitude-2-3', img: 'icon-page' },
+                    { text: 'Magnitude-3-4', img: 'icon-page' },
+                    { text: 'Magnitude-4-5', img: 'icon-page' },
+                    { text: 'Magnitude-5-up', img: 'icon-page' }
+                ]
+            },
+            { type: 'break' },
+            { type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', img: 'icon-page' },
+            { type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', img: 'icon-page' },
+            { type: 'spacer' },
+            { type: 'button',  id: 'item5',  caption: 'Item 5', img: 'icon-save' }
+        ],
+        onClick: function(event) {
+        console.log( event.target + ' is clicked.');
+        
+
+        let x = event.target
+
+             if(event.target==='select-mag:Magnitude-0-1') {
+                  earthquakes.clearLayers();
+                  selectedData(0, 1);
+            } else if (event.target==='select-mag:Magnitude-1-2') {
+                  earthquakes.clearLayers();
+                  selectedData(1, 2);
+            } else if (event.target ==='select-mag:Magnitude-2-3') {
+                  earthquakes.clearLayers();
+                  selectedData(2,3);
+            } else if (event.target ==='select-mag:Magnitude-3-4') {
+                  earthquakes.clearLayers();
+                  selectedData(3,4);
+            } else if (event.target ==='select-mag:Magnitude-4-5') {
+                  earthquakes.clearLayers();
+                  selectedData(4,5);
+            } else if (event.target === 'select-mag:Magnitude-5-up') {
+                   earthquakes.clearLayers();
+                   selectedData(5, 999);
+            } else if (event.target === 'select-mag:Magnitude-All') {
+                   earthquakes.clearLayers();
+                   selectedData(0, 999);
+            } else {
+              
+            }
+        }
+    });
+});
 
 
-
+/*
 $(function () {
     $('#mySidebar').w2sidebar({
         name  : 'mySidebar',
@@ -247,7 +276,7 @@ $(function () {
         }
     });
 });
-
+*/
 
 
 function selectedData(minMag, maxMag) {
